@@ -15,9 +15,15 @@ _transforms = {
 }
 
 
-_mappings = { collections.abc.Mapping	}
+_sequences = tuple([tuple, list])
+_mappings = tuple([collections.abc.Mapping])
+
 def register_mapping_class(cls):
-	_mappings.add(cls)
+	global _mappings
+
+	new_mappings = set(_mappings)
+	new_mappings.add(cls)
+	_mappings = tuple(new_mappings)
 
 
 def _create_case_mapping(fields, output_case):
@@ -32,7 +38,7 @@ def _create_case_mapping(fields, output_case):
 
 
 def translate_case(value, desired_case):
-	if isinstance(value, collections.abc.Sequence):
+	if isinstance(value, _sequences):
 		result = list()
 
 		for item in value:
@@ -44,15 +50,15 @@ def translate_case(value, desired_case):
 	if not isinstance(value, _mappings):
 		return value
 
-	mapping = value
-	mapping = _create_case_mapping(mapping.keys(),
+	source_mapping = value
+	mapping = _create_case_mapping(value.keys(),
 		desired_case)
 
 	converted_dict = dict()
 	for output_key, input_key in mapping.items():
-		input_content = mapping[input_key]
+		input_content = source_mapping[input_key]
 
-		if isinstance(input_content, collections.abc.Sequence):
+		if isinstance(input_content, _sequences):
 			translated_values = list()
 
 			for item in input_content:
@@ -72,8 +78,8 @@ def translate_case(value, desired_case):
 #-------------------------------------------------------------------------------
 
 _complex_types = (
-	collections.abc.Mapping,
-	collections.abc.Sequence
+	*_mappings,
+	*_sequences
 )
 
 class _convert_mapping:
@@ -114,7 +120,7 @@ def assemble_dicts(*bases, include_nones=True, **named):
 				result[key] = value
 
 	for field, entry in named.items():
-		if isinstance(entry, collections.abc.Sequence):
+		if isinstance(entry, _sequences):
 			scoped = list()
 
 			for item in entry:
