@@ -1,6 +1,6 @@
 
 API Reference
-=============================
+=============
 
 .. autoclass:: umapper.Case
 .. autofunction:: umapper.register_mapping_class
