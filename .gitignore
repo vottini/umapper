@@ -3,7 +3,6 @@
 /__pycache__
 *.pyc
 .coverage
-pavao.log
-application.yml
-/endpoints
 /docs/build
+/dist
+/umapper.egg-info

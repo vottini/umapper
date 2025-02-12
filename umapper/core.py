@@ -3,6 +3,17 @@ import humps
 import collections
 
 class Case:
+
+	'''Different types of case.
+
+	CAMEL is the case used in Java and JavaScript methods, somethingLikeThis().
+	SNAKE is usually utilized in C/C++ and Python methods, something_like_this().
+	PASCAL is CapitalCamelCase, often used in class names and Pascal derivatives.
+	Kebab case is many times used in Scheme and other Lisp dialects, but was not
+	included in this library
+
+	'''
+
 	CAMEL = 1
 	SNAKE = 2
 	PASCAL = 3
@@ -18,7 +29,23 @@ _transforms = {
 _sequences = tuple([tuple, list])
 _mappings = tuple([collections.abc.Mapping])
 
-def register_mapping_class(cls):
+def register_mapping_class(cls): # pragma: no cover
+
+	'''Registers classes that should be recursively mapped.
+
+	By default, umapper navigates dictionaries and built in sequences
+	(lists and tuples), recursively mapping their contents. Often libraries
+	offer utility classes that behave like dictionaries (mappings) but are
+	not themselves either child classes of dictionaries nor inherit
+	from collections.abc.Mapping. This method is used to register such
+	classes, which must have a .items() method that iterates over its
+	(key,value) entries.
+
+	Args:
+	  cls (class): class to register.
+
+	'''
+
 	global _mappings
 
 	new_mappings = set(_mappings)
@@ -38,6 +65,19 @@ def _create_case_mapping(fields, output_case):
 
 
 def translate_case(value, desired_case):
+
+	'''Translate names of keys from dictionary-like (mapping) objects to a
+	desired case.
+
+	Args:
+		value (dict-like): mapping object to translate case.
+		deseired_case (int): value of Case indicating what case to map to.
+
+	Returns:
+	  dict: a copy of the passed dictionary with the keys translated.
+
+	'''
+
 	if isinstance(value, _sequences):
 		result = list()
 
@@ -77,15 +117,15 @@ def translate_case(value, desired_case):
 
 #-------------------------------------------------------------------------------
 
-_complex_types = (
-	*_mappings,
-	*_sequences
-)
-
 class _convert_mapping:
 	def __init__(self, mapping):
 		complex_values = dict()
 		sane = dict()
+
+		_complex_types = (
+			*_mappings,
+			*_sequences
+		)
 
 		for key, value in mapping.items():
 			dst = complex_values if isinstance(value, _complex_types) else sane
@@ -98,7 +138,19 @@ class _convert_mapping:
 
 
 def convert_to_object(value):
-	if isinstance(value, collections.abc.Mapping):
+	'''Transform dictionaries or dictionary-like objects into objects.
+	The keys of the dictionary will become the fields of the newly generated
+	object. This function will recursively convert the dictionary.
+
+	Args:
+		value (dict-like): mapping object to convert to an object.
+
+	Returns:
+		object: raw object with the contents of the dictionary.
+
+	'''
+
+	if isinstance(value, _mappings):
 		return _convert_mapping(value)
 
 	if isinstance(value, list):
@@ -111,9 +163,34 @@ def convert_to_object(value):
 	return value
 
 
-def assemble_dicts(*bases, include_nones=True, **named):
-	result = dict()
+def assemble_dicts(*bases,
+	include_nones=True,
+	mapping_case=Case.CAMEL,
+	**named):
 
+	'''Joins lone dictionaries into one single dictionary.
+	This method does a couple of things: firsly, it'll join separated
+	dictionaties into one single dictionary, and if the same key is present
+	in multiple dicts, the last ones will overwrite any previously processed
+	key; secondly, it'll convert the keys of the dictionaries to an specific
+	case, which can be be configured by the named parameter mapping_case, and
+	defaults to camel case; thirdly, it can skip including keys which have
+	null values by use of the named parameter include_nones, that defaults to
+	true; and lastly, any other named parameter will be included in the final
+	result.
+
+	Args:
+		bases ([dict]): list of dictionaries to join/assemble.
+		include_nones (boolean): whether to include keys with null values, defaults to true.
+		mapping_case (int): which case to map the keys to, defaults to camel case.
+		named: any other key=value name parameter that should be included in the joined dict
+
+	Returns:
+		dict: a dictionary with the list of dicts joined.
+
+	'''
+
+	result = dict()
 	for entry in bases:
 		for key, value in entry.items():
 			if value is not None or include_nones:
@@ -145,7 +222,12 @@ def assemble_dicts(*bases, include_nones=True, **named):
 		else:
 			result[field] = entry
 
-	mapped = translate_case(result, Case.CAMEL)
+	mapped = (
+		translate_case(result, mapping_case)
+			if mapping_case is not None
+			else mapped
+	)
+
 	return mapped
 
 #-------------------------------------------------------------------------------
