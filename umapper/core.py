@@ -136,6 +136,10 @@ class _convert_mapping:
 
 		self.__dict__.update(sane)
 
+	def keys(self): return self.__dict__.keys()
+	def values(self): return self.__dict__.values()
+	def items(self): return self.__dict__.items()
+
 
 def convert_to_object(value):
 	'''Transform dictionaries or dictionary-like objects into objects.
@@ -168,22 +172,22 @@ def assemble_dicts(*bases,
 	mapping_case=Case.CAMEL,
 	**named):
 
-	'''Joins lone dictionaries into one single dictionary.
-	This method does a couple of things: firsly, it'll join separated
+	'''Merges dictionaries into one final dictionary.
+	This method does a couple of things: firsly, it'll merge separated
 	dictionaties into one single dictionary, and if the same key is present
 	in multiple dicts, the last ones will overwrite any previously processed
 	key; secondly, it'll convert the keys of the dictionaries to an specific
-	case, which can be be configured by the named parameter mapping_case, and
+	case, which can be be configured by the key parameter 'mapping_case', which
 	defaults to camel case; thirdly, it can skip including keys which have
-	null values by use of the named parameter include_nones, that defaults to
-	true; and lastly, any other named parameter will be included in the final
+	null values emplyoing the key parameter 'include_nones', that defaults to
+	true; and lastly, any other key parameter will be included in the final
 	result.
 
 	Args:
-		bases ([dict]): list of dictionaries to join/assemble.
+		bases ([dict]): list of dictionaries to merge/assemble.
 		include_nones (boolean): whether to include keys with null values, defaults to true.
 		mapping_case (int): which case to map the keys to, defaults to camel case.
-		named: any other key=value name parameter that should be included in the joined dict
+		named: any other key=value key parameter that should be included in the merged dict
 
 	Returns:
 		dict: a dictionary with the list of dicts joined.
