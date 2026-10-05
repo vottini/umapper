@@ -71,7 +71,7 @@ def translate_case(value, desired_case):
 
 	Args:
 		value (dict-like): mapping object to translate case.
-		deseired_case (int): value of Case indicating what case to map to.
+		desired_case (int): value of Case indicating what case to map to.
 
 	Returns:
 	  dict: a copy of the passed dictionary with the keys translated.
@@ -157,7 +157,7 @@ def convert_to_object(value):
 	if isinstance(value, _mappings):
 		return _convert_mapping(value)
 
-	if isinstance(value, list):
+	if isinstance(value, _sequences):
 
 		return [
 			convert_to_object(element)
@@ -218,7 +218,7 @@ def assemble_dicts(*bases,
 			scoped = dict()
 
 			for key, value in entry.items():
-				if value is not None:
+				if value is not None or include_nones:
 					scoped[key] = value
 
 			result[field] = scoped
@@ -229,7 +229,7 @@ def assemble_dicts(*bases,
 	mapped = (
 		translate_case(result, mapping_case)
 			if mapping_case is not None
-			else mapped
+			else result
 	)
 
 	return mapped
