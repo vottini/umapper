@@ -48,7 +48,7 @@ translate_case(data, Case.PASCAL)
 
 Translation works on lists too — each element is converted independently.
 
-Non-dict, non-list values (strings, numbers, etc.) are returned as-is.
+Translation works on tuples too. Scalar values (strings, numbers, etc.) are returned as-is.
 
 ---
 
@@ -57,18 +57,14 @@ Non-dict, non-list values (strings, numbers, etc.) are returned as-is.
 ```python
 from umapper import Case, translate_case, convert_to_object
 
-data = {'user_id': 42, 'address': {'city': 'São Paulo'}}
-obj = convert_to_object(data)
-
-print(obj.user_id)        # 42
-print(obj.address.city)   # São Paulo
-```
-
-Combine with `translate_case` when the source dict uses a different case:
-
-```python
+data = {'userId': 42, 'homeAddress': {'city': 'São Paulo'}}
 obj = convert_to_object(translate_case(data, Case.SNAKE))
+
+print(obj.user_id)             # 42
+print(obj.home_address.city)   # São Paulo
 ```
+
+`translate_case` is optional — use it beforehand when you want a specific attribute naming style on the resulting object.
 
 ---
 

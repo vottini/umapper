@@ -6,7 +6,7 @@
 umapper documentation
 =====================
 
-**umapper** is a collection of utility methods to easen working with dictionaries and the case of their keys.
+**umapper** is a small Python utility for working with dictionaries: translate key casing between snake_case, camelCase and PascalCase, convert nested dicts into attribute-accessible objects, and merge multiple dicts in a single call.
 
 .. toctree::
    :maxdepth: 2
